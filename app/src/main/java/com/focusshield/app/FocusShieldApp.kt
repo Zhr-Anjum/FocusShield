@@ -36,7 +36,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.toSp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
@@ -305,40 +304,58 @@ fun CleanMainScreen(repo: FocusShieldRepository) {
     Scaffold(
         containerColor = Color(0xFFF8FAFC),
         topBar = {
-            Surface(shadowElevation = 2.dp, color = Color.White) {
+            Surface(shadowElevation = 1.dp, color = Color.White) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 18.dp, vertical = 14.dp),
+                        .padding(horizontal = 14.dp, vertical = 8.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Column {
-                        Text(
-                            text = "FocusShield",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF0F172A)
-                        )
-                        Text(
-                            text = "100% Free Forever • Community Supported",
-                            fontSize = 12.sp,
-                            color = Color(0xFF64748B)
-                        )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(32.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(Color(0xFF0D9488)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text("🛡️", fontSize = 16.sp)
+                        }
+                        Column {
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                Text(
+                                    text = "FocusShield",
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFF0F172A)
+                                )
+                            }
+                            Text(
+                                text = "100% Free Forever",
+                                fontSize = 10.sp,
+                                color = Color(0xFF64748B)
+                            )
+                        }
                     }
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+
+                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         OutlinedButton(
                             onClick = { showDonateSheet = true },
-                            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp)
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+                            modifier = Modifier.height(30.dp)
                         ) {
                             Icon(
                                 Icons.Default.Favorite,
                                 contentDescription = "Donate",
                                 tint = Color(0xFFE11D48),
-                                modifier = Modifier.size(15.dp)
+                                modifier = Modifier.size(13.dp)
                             )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text("Donate", fontSize = 12.sp, color = Color(0xFF0F172A))
+                            Spacer(modifier = Modifier.width(3.dp))
+                            Text("Donate", fontSize = 11.sp, color = Color(0xFF0F172A))
                         }
 
                         Button(
@@ -346,9 +363,10 @@ fun CleanMainScreen(repo: FocusShieldRepository) {
                                 context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
                             },
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0D9488)),
-                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+                            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
+                            modifier = Modifier.height(30.dp)
                         ) {
-                            Text("Activate", fontSize = 12.sp, color = Color.White)
+                            Text("Activate", fontSize = 11.sp, color = Color.White)
                         }
                     }
                 }
