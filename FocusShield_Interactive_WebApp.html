@@ -23,6 +23,20 @@
       70% { box-shadow: 0 0 0 12px rgba(13, 148, 136, 0); }
       100% { box-shadow: 0 0 0 0 rgba(13, 148, 136, 0); }
     }
+    .dropdown-select {
+      width: 100%;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid #cbd5e1;
+      font-size: 14px;
+      background-color: #ffffff;
+      color: #0f172a;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .dropdown-select:focus {
+      border-color: #0d9488;
+    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-start py-2 px-2 sm:py-6 sm:px-4">
@@ -257,7 +271,7 @@
     </nav>
 
     <!-- ================================================================== -->
-    <!-- FULL-SCREEN BUFFER CLOCK OVERLAY + NEXT-TO-CLOCK "DONATE" SIGN     -->
+    <!-- FULL-SCREEN BUFFER CLOCK OVERLAY + NEXT-TO-CLOCK "DONATE" SIGN  -->
     <!-- ================================================================== -->
     <div id="bufferOverlayModal" class="hidden absolute inset-0 bg-slate-50 z-30 flex flex-col justify-between p-5 overflow-y-auto">
       <div class="text-center space-y-1.5 pt-2">
@@ -292,11 +306,11 @@
                 </span>
               </div>
               <p class="text-[11px] text-rose-900 leading-snug pt-0.5">
-                Satisfied with the time &amp; money FocusShield saves you? Donate in <strong>₹ INR, $ USD, or any currency</strong> so we can help more people &amp; grow!
+                Satisfied with the time &amp; money FocusShield saves you? Donate in <strong>₹ INR, \$ USD, or any currency</strong> so we can help more people &amp; grow!
               </p>
             </div>
             <div class="pt-2 flex items-center justify-between border-t border-rose-200/60 mt-2">
-              <span class="text-[11px] font-extrabold text-rose-700">Tap to Donate (₹ / $ / €) →</span>
+              <span class="text-[11px] font-extrabold text-rose-700">Tap to Donate (₹ / \$ / €) →</span>
             </div>
           </div>
         </div>
@@ -348,7 +362,7 @@
     </div>
 
     <!-- ================================================================== -->
-    <!-- GOOGLE PLAY MULTI-CURRENCY DONATION MODAL (INR ₹, USD $, EUR €, £) -->
+    <!-- GOOGLE PLAY MULTI-CURRENCY DONATION MODAL (DROPDOWN MENUS)         -->
     <!-- ================================================================== -->
     <div id="donateModal" class="hidden absolute inset-0 bg-slate-900/60 backdrop-blur-xs z-40 flex items-end sm:items-center justify-center p-3">
       <div class="bg-white w-full rounded-3xl p-5 shadow-2xl space-y-4 animate-fade-in">
@@ -363,19 +377,26 @@
         </div>
 
         <p class="text-xs text-slate-600 leading-relaxed">
-          FocusShield is <strong>100% free with zero ads and zero locked features</strong>. If this app saved your daily routine or stopped an impulsive trade, you can tip in any currency via Google Play!
+          FocusShield is <strong>100% free with zero ads and zero locked features</strong>. If this app saved your daily routine or stopped an impulsive trade, you can tip via Google Play!
         </p>
 
-        <!-- Currency Picker -->
+        <!-- Currency Dropdown Selection -->
         <div class="space-y-1.5">
-          <p class="text-xs font-bold text-slate-700">1. Select Your Currency:</p>
-          <div class="grid grid-cols-4 gap-1.5" id="currencyButtonsContainer"></div>
+          <label for="currencyDropdownSelect" class="text-xs font-bold text-slate-700 block">1. Select Your Currency:</label>
+          <select id="currencyDropdownSelect" class="dropdown-select font-semibold">
+            <option value="INR (₹)">INR — Indian Rupee (₹)</option>
+            <option value="USD (\$)">USD — US Dollar (\$)</option>
+            <option value="EUR (€)">EUR — Euro (€)</option>
+            <option value="GBP (£)">GBP — British Pound (£)</option>
+          </select>
         </div>
 
-        <!-- Amount Picker -->
+        <!-- Contribution Amount Dropdown Selection -->
         <div class="space-y-1.5">
-          <p class="text-xs font-bold text-slate-700">2. Choose Support Tier:</p>
-          <div class="grid grid-cols-2 gap-2" id="amountButtonsContainer"></div>
+          <label for="amountDropdownSelect" class="text-xs font-bold text-slate-700 block">2. Choose Support Tier:</label>
+          <select id="amountDropdownSelect" class="dropdown-select font-semibold">
+            <!-- Dynamically populated based on selected currency -->
+          </select>
         </div>
 
         <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-[11px] text-slate-600">
@@ -383,7 +404,7 @@
         </div>
 
         <button id="confirmDonateCheckoutBtn" type="button" class="w-full py-3.5 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-sm shadow-md transition">
-          Donate ₹99 via Google Play
+          Donate via Google Play
         </button>
       </div>
     </div>
@@ -420,11 +441,11 @@
         { label: "🛡️ Routine Hero", amount: "₹199", sku: "support_tier_boost" },
         { label: "💎 Champion", amount: "₹499", sku: "support_tier_champion" }
       ],
-      "USD ($)": [
-        { label: "☕ Coffee Tip", amount: "$1.99", sku: "support_tier_chai" },
-        { label: "🚀 Focus Boost", amount: "$4.99", sku: "support_tier_coffee" },
-        { label: "🛡️ Routine Hero", amount: "$9.99", sku: "support_tier_boost" },
-        { label: "💎 Champion", amount: "$19.99", sku: "support_tier_champion" }
+      "USD (\$)": [
+        { label: "☕ Coffee Tip", amount: "\$1.99", sku: "support_tier_chai" },
+        { label: "🚀 Focus Boost", amount: "\$4.99", sku: "support_tier_coffee" },
+        { label: "🛡️ Routine Hero", amount: "\$9.99", sku: "support_tier_boost" },
+        { label: "💎 Champion", amount: "\$19.99", sku: "support_tier_champion" }
       ],
       "EUR (€)": [
         { label: "☕ Coffee Tip", amount: "€1.99", sku: "support_tier_chai" },
@@ -453,7 +474,7 @@
     let bufferSecondsRemaining = 12;
     let selectedSessionMinutes = 5;
 
-    // Donation modal state
+    // Donation modal state (Dropdowns)
     let selectedCurrency = "INR (₹)";
     let selectedTierIndex = 1;
 
@@ -586,7 +607,6 @@
       const hardLockedByCap = isTrading && app.opensToday >= chartDailyCap;
       const isHardLocked = hardLockedByKillSwitch || hardLockedByCap;
 
-      // Progressive buffer clock: 10s base + 2s per open today
       bufferSecondsRemaining = Math.min(30, 10 + app.opensToday * 2);
 
       document.getElementById("bufferTargetTitle").textContent = isHardLocked
@@ -595,7 +615,6 @@
       document.getElementById("bufferTargetSubtitle").textContent =
         `Opened ${app.opensToday} times today • Progressive Buffer Clock`;
 
-      // Reset pre-trade checkboxes
       document.getElementById("chkTradePlan").checked = false;
       document.getElementById("chkTradeStopLoss").checked = false;
       document.getElementById("chkTradeNoRevenge").checked = false;
@@ -677,57 +696,43 @@
       }
     }
 
-    // --- Render Multi-Currency Donation Modal ---
-    function renderDonateModal() {
-      const currContainer = document.getElementById("currencyButtonsContainer");
-      const amtContainer = document.getElementById("amountButtonsContainer");
-      currContainer.innerHTML = "";
-      amtContainer.innerHTML = "";
+    // --- Render Donation Modal Dropdown Menus ---
+    function renderDonateModalDropdowns() {
+      const currencySelect = document.getElementById("currencyDropdownSelect");
+      const amountSelect = document.getElementById("amountDropdownSelect");
 
-      Object.keys(currencyTiers).forEach(currKey => {
-        const btn = document.createElement("button");
-        btn.type = "button";
-        const active = currKey === selectedCurrency;
-        btn.className = active
-          ? "py-2 px-2 rounded-xl bg-slate-900 text-white font-bold text-xs transition"
-          : "py-2 px-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition";
-        btn.textContent = currKey;
-        btn.addEventListener("click", () => {
-          selectedCurrency = currKey;
-          renderDonateModal();
+      // Populate currency dropdown if empty
+      if (currencySelect.options.length === 0) {
+        Object.keys(currencyTiers).forEach(currKey => {
+          const opt = document.createElement("option");
+          opt.value = currKey;
+          opt.textContent = currKey;
+          if (currKey === selectedCurrency) opt.selected = true;
+          currencySelect.appendChild(opt);
         });
-        currContainer.appendChild(btn);
-      });
+      }
 
-      const tiers = currencyTiers[selectedCurrency];
+      // Populate amount tiers based on selected currency
+      amountSelect.innerHTML = "";
+      const tiers = currencyTiers[selectedCurrency] || currencyTiers["INR (₹)"];
       tiers.forEach((tier, idx) => {
-        const btn = document.createElement("button");
-        btn.type = "button";
-        const active = idx === selectedTierIndex;
-        btn.className = active
-          ? "p-3 rounded-2xl border-2 border-rose-600 bg-rose-50 text-left transition"
-          : "p-3 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition";
-        btn.innerHTML = `
-          <p class="text-xs font-bold text-slate-800">${tier.label}</p>
-          <p class="text-base font-extrabold text-rose-600 pt-0.5">${tier.amount}</p>
-        `;
-        btn.addEventListener("click", () => {
-          selectedTierIndex = idx;
-          renderDonateModal();
-        });
-        amtContainer.appendChild(btn);
+        const opt = document.createElement("option");
+        opt.value = idx;
+        opt.textContent = `${tier.label} — ${tier.amount}`;
+        if (idx === selectedTierIndex) opt.selected = true;
+        amountSelect.appendChild(opt);
       });
 
-      const chosen = tiers[selectedTierIndex];
+      const chosen = tiers[selectedTierIndex] || tiers[0];
       document.getElementById("confirmDonateCheckoutBtn").textContent =
-        `Support with ${chosen.amount} via Google Play`;
+        `Donate ${chosen.amount} via Google Play`;
     }
 
     // --- Wire Event Listeners on Load ---
     window.addEventListener("DOMContentLoaded", () => {
       renderAppVault();
       renderSurgicalTab();
-      renderDonateModal();
+      renderDonateModalDropdowns();
 
       // Navigation tabs
       document.querySelectorAll(".nav-tab-btn").forEach(btn => {
@@ -747,7 +752,7 @@
 
       // Header buttons
       document.getElementById("headerDonateBtn").addEventListener("click", () => {
-        renderDonateModal();
+        renderDonateModalDropdowns();
         document.getElementById("donateModal").classList.remove("hidden");
       });
 
@@ -898,8 +903,22 @@
       });
 
       document.getElementById("nextToClockDonateCard").addEventListener("click", () => {
-        renderDonateModal();
+        renderDonateModalDropdowns();
         document.getElementById("donateModal").classList.remove("hidden");
+      });
+
+      // Donation dropdown change events
+      document.getElementById("currencyDropdownSelect").addEventListener("change", (e) => {
+        selectedCurrency = e.target.value;
+        selectedTierIndex = 0; // reset to first tier on currency switch
+        renderDonateModalDropdowns();
+      });
+
+      document.getElementById("amountDropdownSelect").addEventListener("change", (e) => {
+        selectedTierIndex = parseInt(e.target.value, 10);
+        const chosen = currencyTiers[selectedCurrency][selectedTierIndex];
+        document.getElementById("confirmDonateCheckoutBtn").textContent =
+          `Donate ${chosen.amount} via Google Play`;
       });
 
       // Donate modal controls
