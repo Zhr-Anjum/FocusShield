@@ -16,6 +16,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -33,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -316,15 +318,14 @@ fun CleanMainScreen(repo: FocusShieldRepository) {
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Box(
+                        // Render uploaded custom logo image
+                        Image(
+                            painter = painterResource(id = R.drawable.ic_logo),
+                            contentDescription = "FocusShield Logo",
                             modifier = Modifier
                                 .size(32.dp)
                                 .clip(RoundedCornerShape(8.dp))
-                                .background(Color(0xFF0D9488)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text("🛡️", fontSize = 16.sp)
-                        }
+                        )
                         Column {
                             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                                 Text(
@@ -422,7 +423,6 @@ fun SimpleAppListTab(
     val context = LocalContext.current
     var search by remember { mutableStateOf("") }
 
-    // Dynamically query only actual physical user apps installed on the phone
     val apps = remember(lockedPackages) {
         val pm = context.packageManager
         try {
