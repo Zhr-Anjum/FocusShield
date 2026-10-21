@@ -36,22 +36,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toSp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.*
-
-/**
- * ============================================================================
- * FOCUS SHIELD (100% FREE FOR ALL • COMMUNITY-SUPPORTED EDITION)
- * ============================================================================
- * - Clean, simple, attractive Material 3 UI (Zero paywalls, 100% free features)
- * - Universal App Blocker (Instagram, YouTube, Facebook, Zerodha, Binance, etc.)
- * - Surgical Reels & Shorts Blocker (keeps Instagram DMs & YouTube Search working)
- * - Trading Kill Switch & Pre-Trade Checklist (stops emotional revenge trading)
- * - Buffer Clock + "Support / Donate (INR ₹, USD $, EUR €)" badge right next to
- *   the countdown clock during the buffer pause when users feel the app's value.
- */
 
 enum class AppCategory(val label: String) {
     TRADING("Trading & Futures Apps"),
@@ -122,7 +111,6 @@ class FocusShieldRepository(context: Context) {
         prefs.edit().putStringSet("locked_packages", current).apply()
     }
 
-    // Surgical Reels & Shorts Toggles
     var blockInstagramReels: Boolean
         get() = prefs.getBoolean("block_ig_reels", true)
         set(value) = prefs.edit().putBoolean("block_ig_reels", value).apply()
@@ -139,7 +127,6 @@ class FocusShieldRepository(context: Context) {
         get() = prefs.getInt("surgical_saves_${todayKey()}", 0)
         set(value) = prefs.edit().putInt("surgical_saves_${todayKey()}", value).apply()
 
-    // Trading Kill Switch & Market Hours
     var tradingKillSwitchUntilMs: Long
         get() = prefs.getLong("trading_kill_switch_until", 0L)
         set(value) = prefs.edit().putLong("trading_kill_switch_until", value).apply()
@@ -155,19 +142,10 @@ class FocusShieldRepository(context: Context) {
         get() = prefs.getBoolean("enforce_trading_window", true)
         set(value) = prefs.edit().putBoolean("enforce_trading_window", value).apply()
 
-    fun isWithinTradingWindow(): Boolean {
-        if (!enforceTradingWindow) return true
-        val cal = Calendar.getInstance()
-        val minuteOfDay = cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE)
-        // Default 09:15 AM (555) to 11:00 AM (660)
-        return minuteOfDay in 555..660
-    }
-
     var requirePreTradeChecklist: Boolean
         get() = prefs.getBoolean("require_pre_trade_checklist", true)
         set(value) = prefs.edit().putBoolean("require_pre_trade_checklist", value).apply()
 
-    // Buffer Clock & Micro-Sessions
     fun getAppOpensToday(packageName: String): Int =
         prefs.getInt("opens_${todayKey()}_$packageName", 0)
 
@@ -178,7 +156,6 @@ class FocusShieldRepository(context: Context) {
 
     fun getBufferSeconds(packageName: String): Int {
         val opens = getAppOpensToday(packageName)
-        // Starts at 10s buffer, adds 5s each time opened today (max 60s)
         return (10 + opens * 5).coerceAtMost(60)
     }
 
@@ -191,21 +168,11 @@ class FocusShieldRepository(context: Context) {
     fun isTemporarilyUnlocked(packageName: String): Boolean =
         System.currentTimeMillis() < prefs.getLong("unlock_until_$packageName", 0L)
 
-    fun getRemainingUnlockSeconds(packageName: String): Long {
-        val diff = prefs.getLong("unlock_until_$packageName", 0L) - System.currentTimeMillis()
-        return if (diff > 0) diff / 1000L else 0L
-    }
-
     var strictModeEnabled: Boolean
         get() = prefs.getBoolean("strict_mode_enabled", false)
         set(value) = prefs.edit().putBoolean("strict_mode_enabled", value).apply()
 }
 
-/**
- * ============================================================================
- * BACKGROUND ACCESSIBILITY SERVICE
- * ============================================================================
- */
 class FocusShieldAccessibilityService : AccessibilityService() {
 
     private lateinit var repo: FocusShieldRepository
@@ -234,17 +201,6 @@ class FocusShieldAccessibilityService : AccessibilityService() {
             packageName == "com.android.systemui"
         ) return
 
-        // 1. Strict Mode Settings Guard
-        if (repo.strictModeEnabled && packageName == KnownPackages.SETTINGS_PKG && rootNode != null) {
-            val tamperWords = listOf("FocusShield", "Accessibility", "Uninstall", "Force stop")
-            if (tamperWords.any { rootNode.findAccessibilityNodeInfosByText(it).isNotEmpty() }) {
-                performGlobalAction(GLOBAL_ACTION_HOME)
-                launchBufferScreen(packageName, "Strict Mode is protecting your settings.")
-                return
-            }
-        }
-
-        // 2. Surgical Reels & Shorts Blocking (leaves DMs and Search open)
         if (packageName == KnownPackages.INSTAGRAM_PKG && rootNode != null && repo.blockInstagramReels) {
             val reelIds = listOf(
                 "com.instagram.android:id/clips_viewer_view_pager",
@@ -274,13 +230,12 @@ class FocusShieldAccessibilityService : AccessibilityService() {
             }
         }
 
-        // 3. Full App Lock & Trading Discipline Check
         val lockedPackages = repo.getLockedPackages()
         val isTrading = KnownPackages.TRADING_PACKAGES.contains(packageName)
 
         if (isTrading && repo.isTradingKillSwitchActive()) {
             performGlobalAction(GLOBAL_ACTION_HOME)
-            launchBufferScreen(packageName, "Trading Kill Switch Active: Locked for the day to prevent overtrading.")
+            launchBufferScreen(packageName, "Trading Kill Switch Active: Locked for the day.")
             return
         }
 
@@ -317,11 +272,6 @@ class FocusShieldAccessibilityService : AccessibilityService() {
     override fun onInterrupt() {}
 }
 
-/**
- * ============================================================================
- * SIMPLE, ATTRACTIVE MAIN DASHBOARD (100% FREE + VOLUNTARY DONATION SUPPORT)
- * ============================================================================
- */
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -329,10 +279,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             MaterialTheme(
                 colorScheme = lightColorScheme(
-                    primary = Color(0xFF0D9488),       // Calm Teal
-                    secondary = Color(0xFF2563EB),     // Clean Royal Blue
-                    background = Color(0xFFF8FAFC),    // Soft Warm Daylight Gray
-                    surface = Color(0xFFFFFFFF)        // Pure White Cards
+                    primary = Color(0xFF0D9488),
+                    secondary = Color(0xFF2563EB),
+                    background = Color(0xFFF8FAFC),
+                    surface = Color(0xFFFFFFFF)
                 )
             ) {
                 CleanMainScreen(repo = repo)
@@ -377,7 +327,6 @@ fun CleanMainScreen(repo: FocusShieldRepository) {
                         )
                     }
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        // Subtle Donate Button in Header
                         OutlinedButton(
                             onClick = { showDonateSheet = true },
                             contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp)
@@ -455,9 +404,10 @@ fun SimpleAppListTab(
     val context = LocalContext.current
     var search by remember { mutableStateOf("") }
 
+    // Dynamically query only actual physical user apps installed on the phone
     val apps = remember(lockedPackages) {
         val pm = context.packageManager
-        val installed = try {
+        try {
             pm.getInstalledApplications(PackageManager.GET_META_DATA)
                 .filter { (it.flags and ApplicationInfo.FLAG_SYSTEM) == 0 }
                 .map { info ->
@@ -474,26 +424,10 @@ fun SimpleAppListTab(
                         isLocked = lockedPackages.contains(pkg)
                     )
                 }
+                .sortedWith(compareBy({ it.category.ordinal }, { it.appName }))
         } catch (e: Exception) {
             emptyList()
         }
-
-        val presets = mapOf(
-            "com.instagram.android" to ("Instagram" to AppCategory.SOCIAL),
-            "com.google.android.youtube" to ("YouTube" to AppCategory.SOCIAL),
-            "com.facebook.katana" to ("Facebook" to AppCategory.SOCIAL),
-            "com.zerodha.kite3" to ("Zerodha Kite" to AppCategory.TRADING),
-            "com.binance.dev" to ("Binance (Futures & Spot)" to AppCategory.TRADING),
-            "com.tradingview.tradingviewapp" to ("TradingView Charts" to AppCategory.TRADING),
-            "com.nextbillion.groww" to ("Groww" to AppCategory.TRADING)
-        )
-        val merged = installed.associateBy { it.packageName }.toMutableMap()
-        presets.forEach { (pkg, pair) ->
-            if (!merged.containsKey(pkg)) {
-                merged[pkg] = InstalledAppItem(pkg, pair.first, pair.second, lockedPackages.contains(pkg))
-            }
-        }
-        merged.values.sortedWith(compareBy({ it.category.ordinal }, { it.appName }))
     }
 
     LazyColumn(
@@ -538,7 +472,7 @@ fun SimpleAppListTab(
             OutlinedTextField(
                 value = search,
                 onValueChange = { search = it },
-                label = { Text("Search any app on your phone...") },
+                label = { Text("Search installed apps...") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
@@ -734,15 +668,6 @@ fun SimpleSwitchCard(
     }
 }
 
-/**
- * ============================================================================
- * THE BUFFER CLOCK SCREEN WITH NEXT-TO-CLOCK "DONATE IF SATISFIED" SIGN
- * ============================================================================
- * This screen pops up when the user tries to open a blocked app (Instagram,
- * YouTube, Facebook, Zerodha, Binance, etc.). Right beside the buffer countdown
- * clock sits a clean, warm card: "Donate if you're satisfied so we can grow"
- * supporting INR (₹), USD ($), EUR (€), and GBP (£).
- */
 class LockInterceptorActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -787,7 +712,6 @@ fun BufferClockWithDonateScreen(
     var selectedMinutes by remember { mutableStateOf(5) }
     var showDonateModal by remember { mutableStateOf(false) }
 
-    // Pre-trade checkboxes if opening a trading app
     var checkPlan by remember { mutableStateOf(false) }
     var checkNoRevenge by remember { mutableStateOf(false) }
 
@@ -810,7 +734,6 @@ fun BufferClockWithDonateScreen(
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Top Header
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Spacer(modifier = Modifier.height(16.dp))
             Text(
@@ -834,7 +757,6 @@ fun BufferClockWithDonateScreen(
             )
         }
 
-        // CENTER: BUFFER CLOCK + NEXT-TO-CLOCK "DONATE IF SATISFIED" SIGN
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -844,7 +766,6 @@ fun BufferClockWithDonateScreen(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // 1. The Buffer Countdown Clock
                 Card(
                     colors = CardDefaults.cardColors(containerColor = Color.White),
                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
@@ -872,7 +793,6 @@ fun BufferClockWithDonateScreen(
                     }
                 }
 
-                // 2. Next-to-Clock Sign: "Donate if you are satisfied so we can help to grow"
                 Card(
                     colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF1F2)),
                     shape = RoundedCornerShape(18.dp),
@@ -915,7 +835,6 @@ fun BufferClockWithDonateScreen(
                 }
             }
 
-            // Optional Pre-Trade Check if opening Zerodha / Binance / TradingView
             if (isTrading && repo.requirePreTradeChecklist) {
                 Card(
                     colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -940,7 +859,6 @@ fun BufferClockWithDonateScreen(
                 }
             }
 
-            // Pick how many minutes to use the app
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
                     text = "If you still need to open, pick a time limit:",
@@ -960,7 +878,6 @@ fun BufferClockWithDonateScreen(
             }
         }
 
-        // Bottom Buttons
         val canProceed = secondsLeft == 0 &&
                 (!isTrading || !repo.requirePreTradeChecklist || (checkPlan && checkNoRevenge))
 
@@ -1000,11 +917,6 @@ fun BufferClockWithDonateScreen(
     }
 }
 
-/**
- * ============================================================================
- * MULTI-CURRENCY VOLUNTARY DONATION / TIP JAR DIALOG (INR ₹, USD $, EUR €, GBP £)
- * ============================================================================
- */
 @Composable
 fun MultiCurrencyDonateDialog(onDismiss: () -> Unit) {
     val context = LocalContext.current
