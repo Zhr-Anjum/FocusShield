@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>FocusShield — App Blocker, Reels Shield &amp; Trading Kill Switch</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #f1f5f9;
+      color: #0f172a;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .pulse-ring {
+      animation: pulseRing 2s infinite;
+    }
+    @keyframes pulseRing {
+      0% { box-shadow: 0 0 0 0 rgba(13, 148, 136, 0.35); }
+      70% { box-shadow: 0 0 0 12px rgba(13, 148, 136, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(13, 148, 136, 0); }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-start py-2 px-2 sm:py-6 sm:px-4">
+
+  <!-- Top Phone Wrapper -->
+  <div class="w-full max-w-md bg-slate-50 rounded-3xl shadow-xl border border-slate-200 overflow-hidden flex flex-col min-h-[92vh] sm:min-h-[820px] relative">
+
+    <!-- Top App Bar -->
+    <header class="bg-white border-b border-slate-200 px-4 py-3.5 flex items-center justify-between sticky top-0 z-20">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl bg-teal-600 flex items-center justify-center text-white font-extrabold text-lg shadow-sm">
+          🛡️
+        </div>
+        <div>
+          <div class="flex items-center gap-1.5">
+            <h1 class="font-bold text-slate-900 text-base leading-tight">FocusShield</h1>
+            <span id="supporterBadge" class="hidden text-[10px] font-bold bg-rose-100 text-rose-700 px-2 py-0.5 rounded-full">❤️ Supporter</span>
+          </div>
+          <p class="text-[11px] text-slate-500">100% Free Forever • Community Supported</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-1.5">
+        <button id="headerDonateBtn" type="button" class="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-semibold transition">
+          <span>❤️</span>
+          <span>Donate</span>
+        </button>
+        <button id="headerApkHelpBtn" type="button" class="px-2.5 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold transition">
+          Get APK
+        </button>
+      </div>
+    </header>
+
+    <!-- Quick Live Demo Banner -->
+    <div class="bg-teal-50 border-b border-teal-100 px-4 py-2.5 flex items-center justify-between">
+      <div class="pr-2">
+        <p class="text-xs font-bold text-teal-900">Tap any locked app or test the Buffer Clock</p>
+        <p class="text-[11px] text-teal-700">See the countdown clock + "Donate if satisfied" sign live</p>
+      </div>
+      <button id="quickTestBufferBtn" type="button" class="shrink-0 px-3 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold shadow-sm transition">
+        Test Lock Screen →
+      </button>
+    </div>
+
+    <!-- Main Scrollable Content Area -->
+    <main class="flex-1 overflow-y-auto p-4 space-y-4 pb-24">
+
+      <!-- TAB 1: APPS VAULT -->
+      <section id="tabApps" class="space-y-4">
+        <!-- Stats Row -->
+        <div class="grid grid-cols-3 gap-2.5">
+          <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm text-center">
+            <p id="statLockedCount" class="text-lg font-extrabold text-teal-600">6</p>
+            <p class="text-[11px] text-slate-500 font-medium">Apps Locked</p>
+          </div>
+          <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm text-center">
+            <p id="statReelsSaved" class="text-lg font-extrabold text-blue-600">14</p>
+            <p class="text-[11px] text-slate-500 font-medium">Reels Blocked</p>
+          </div>
+          <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm text-center">
+            <p id="statTimeSaved" class="text-lg font-extrabold text-emerald-600">2.4h</p>
+            <p class="text-[11px] text-slate-500 font-medium">Saved Today</p>
+          </div>
+        </div>
+
+        <!-- Search & Add Custom App -->
+        <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm space-y-2.5">
+          <div class="flex gap-2">
+            <input id="appSearchInput" type="text" placeholder="Search Instagram, YouTube, Zerodha, Binance..." class="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-teal-500" />
+          </div>
+          <div class="flex gap-2">
+            <input id="customAppNameInput" type="text" placeholder="Add any other app name (e.g. PUBG, Groww)..." class="flex-1 text-xs px-3 py-1.5 rounded-xl border border-slate-200 focus:outline-none focus:border-teal-500" />
+            <select id="customAppCatSelect" class="text-xs px-2 py-1.5 rounded-xl border border-slate-200 bg-slate-50">
+              <option value="SOCIAL">Social</option>
+              <option value="TRADING">Trading</option>
+              <option value="OTHER">Other</option>
+            </select>
+            <button id="addCustomAppBtn" type="button" class="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold shrink-0">
+              + Add
+            </button>
+          </div>
+        </div>
+
+        <!-- Dynamic App List Container -->
+        <div id="appVaultContainer" class="space-y-4"></div>
+      </section>
+
+      <!-- TAB 2: SURGICAL REELS & SHORTS SHIELD -->
+      <section id="tabSurgical" class="hidden space-y-4">
+        <div class="bg-emerald-900 text-white p-4 rounded-2xl shadow-sm space-y-1.5">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-bold uppercase tracking-wider bg-emerald-700 px-2.5 py-0.5 rounded-full">Surgical In-App Filter</span>
+            <span id="surgicalCounterBadge" class="text-xs font-bold text-emerald-300">14 Intercepted Today</span>
+          </div>
+          <h2 class="text-base font-bold pt-1">Block Reels &amp; Shorts, Keep DMs &amp; Study Videos</h2>
+          <p class="text-xs text-emerald-100 leading-relaxed">
+            Don't delete Instagram or YouTube. FocusShield lets you reply to friends' DMs and watch study tutorials, but kicks you out the second you tap Reels or Shorts.
+          </p>
+        </div>
+
+        <!-- Surgical Toggles -->
+        <div class="space-y-2.5" id="surgicalTogglesList"></div>
+
+        <!-- Interactive Simulator to Test Surgical Blocking -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">Try It Live: Simulate Inside Instagram &amp; YouTube</h3>
+          <div class="grid grid-cols-2 gap-2">
+            <button id="simIgDmBtn" type="button" class="p-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-emerald-50 text-left transition">
+              <p class="text-xs font-bold text-slate-900">💬 Open Insta DMs</p>
+              <p class="text-[11px] text-emerald-700 font-medium">Allowed (Stays Open)</p>
+            </button>
+            <button id="simIgReelsBtn" type="button" class="p-3 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-left transition">
+              <p class="text-xs font-bold text-rose-900">🎬 Tap Insta Reels</p>
+              <p class="text-[11px] text-rose-700 font-medium">Blocked Immediately!</p>
+            </button>
+            <button id="simYtStudyBtn" type="button" class="p-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-emerald-50 text-left transition">
+              <p class="text-xs font-bold text-slate-900">📚 YouTube Search</p>
+              <p class="text-[11px] text-emerald-700 font-medium">Allowed (Tutorials OK)</p>
+            </button>
+            <button id="simYtShortsBtn" type="button" class="p-3 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-left transition">
+              <p class="text-xs font-bold text-rose-900">⚡ Tap YT Shorts</p>
+              <p class="text-[11px] text-rose-700 font-medium">Blocked Immediately!</p>
+            </button>
+          </div>
+          <div id="surgicalSimOutput" class="p-3 rounded-xl bg-slate-100 text-xs text-slate-700 font-medium">
+            Tap any button above to test how FocusShield tells DMs/Search apart from Reels/Shorts.
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: TRADING KILL SWITCH & MARKET GUARD -->
+      <section id="tabTrading" class="hidden space-y-4">
+        <div id="killSwitchCard" class="bg-white border-2 border-rose-200 p-4 rounded-2xl shadow-sm space-y-3">
+          <div class="flex items-center justify-between">
+            <span id="killSwitchStatusPill" class="text-[11px] font-bold uppercase tracking-wider bg-rose-100 text-rose-800 px-2.5 py-0.5 rounded-full">
+              Revenge-Trade Protection
+            </span>
+            <span class="text-xs font-semibold text-slate-500">18-Hour Lockout</span>
+          </div>
+          <h2 class="text-base font-bold text-slate-900">One-Tap "Done for the Day" Trading Kill Switch</h2>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            Hit your daily profit target or max stop-loss on Zerodha, Groww, Binance, or Delta? Tap below to hard-lock all trading and chart apps for 18 hours so you cannot overtrade or revenge trade.
+          </p>
+          <div class="flex gap-2">
+            <button id="activateKillSwitchBtn" type="button" class="flex-1 py-2.5 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-sm transition">
+              🔒 Activate 18-Hour Trading Kill Switch
+            </button>
+            <button id="resetKillSwitchDemoBtn" type="button" class="hidden py-2.5 px-3 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold text-xs transition">
+              Reset Demo
+            </button>
+          </div>
+        </div>
+
+        <!-- Trading Window & Pre-Trade Rules -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-bold text-slate-900">Market Window Schedule (09:15 – 11:00)</p>
+              <p class="text-xs text-slate-500">Auto-locks broker apps outside your planned setup hours</p>
+            </div>
+            <input id="toggleTradingWindow" type="checkbox" checked class="w-5 h-5 accent-teal-600 rounded cursor-pointer" />
+          </div>
+
+          <div class="border-t border-slate-100 pt-3 flex items-center justify-between">
+            <div>
+              <p class="text-sm font-bold text-slate-900">Pre-Trade Cooling-Off Checklist</p>
+              <p class="text-xs text-slate-500">Requires 3 risk checks during the buffer clock before trading</p>
+            </div>
+            <input id="togglePreTradeChecklist" type="checkbox" checked class="w-5 h-5 accent-teal-600 rounded cursor-pointer" />
+          </div>
+
+          <div class="border-t border-slate-100 pt-3 space-y-1.5">
+            <div class="flex justify-between text-xs font-semibold">
+              <span class="text-slate-800">Daily Chart-Check Open Cap (TradingView / Binance)</span>
+              <span id="chartCapValueLabel" class="text-teal-700 font-bold">5 opens / day</span>
+            </div>
+            <input id="chartCapSlider" type="range" min="1" max="15" value="5" class="w-full accent-teal-600 cursor-pointer" />
+            <p class="text-[11px] text-slate-500">Stops compulsive 1-minute candlestick checking every few minutes.</p>
+          </div>
+        </div>
+
+        <button id="testTraderBufferBtn" type="button" class="w-full py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-sm transition">
+          Simulate Opening Zerodha / Binance Now →
+        </button>
+      </section>
+
+      <!-- TAB 4: SHARE & GET APK -->
+      <section id="tabShare" class="hidden space-y-4">
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+          <h2 class="text-base font-bold text-slate-900">1. Send to Family &amp; Friends Right Now</h2>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            You can share this interactive app with family and friends via WhatsApp or install it on your phone's Home Screen (open in Chrome/Safari → tap <strong>Add to Home Screen</strong>).
+          </p>
+          <button id="copyShareMsgBtn" type="button" class="w-full py-2.5 px-4 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs shadow-sm transition">
+            📋 Copy Family &amp; Friends Share Message
+          </button>
+        </div>
+
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-2.5">
+          <h2 class="text-base font-bold text-slate-900">2. How to Get the Native Android `.APK` File (₹0)</h2>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            Download the attached <strong>FocusShield_Android_Project.zip</strong> file in chat. It includes a ready-to-run <strong>GitHub Cloud APK Builder</strong> so you don't even need a heavy computer:
+          </p>
+          <ol class="text-xs text-slate-700 space-y-1.5 list-decimal list-inside">
+            <li>Unzip <strong>FocusShield_Android_Project.zip</strong> and upload the files to a free GitHub repository.</li>
+            <li>Click the <strong>Actions</strong> tab on GitHub — GitHub's cloud computers automatically compile your signed <strong>FocusShield-debug.apk</strong> in 3 minutes for ₹0.</li>
+            <li>Download the <strong>.apk</strong> onto your phone and forward it directly on WhatsApp to your family and friends!</li>
+          </ol>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="bg-white border-t border-slate-200 px-2 py-2 grid grid-cols-4 gap-1 sticky bottom-0 z-20">
+      <button type="button" data-tab="tabApps" class="nav-tab-btn flex flex-col items-center py-1.5 rounded-xl bg-teal-50 text-teal-700 font-bold text-[11px]">
+        <span class="text-base">🔒</span>
+        <span>Apps</span>
+      </button>
+      <button type="button" data-tab="tabSurgical" class="nav-tab-btn flex flex-col items-center py-1.5 rounded-xl text-slate-500 hover:bg-slate-100 font-medium text-[11px]">
+        <span class="text-base">✂️</span>
+        <span>Reels/Shorts</span>
+      </button>
+      <button type="button" data-tab="tabTrading" class="nav-tab-btn flex flex-col items-center py-1.5 rounded-xl text-slate-500 hover:bg-slate-100 font-medium text-[11px]">
+        <span class="text-base">📉</span>
+        <span>Trading Lock</span>
+      </button>
+      <button type="button" data-tab="tabShare" class="nav-tab-btn flex flex-col items-center py-1.5 rounded-xl text-slate-500 hover:bg-slate-100 font-medium text-[11px]">
+        <span class="text-base">📲</span>
+        <span>Share / APK</span>
+      </button>
+    </nav>
+
+    <!-- ================================================================== -->
+    <!-- FULL-SCREEN BUFFER CLOCK OVERLAY + NEXT-TO-CLOCK "DONATE" SIGN     -->
+    <!-- ================================================================== -->
+    <div id="bufferOverlayModal" class="hidden absolute inset-0 bg-slate-50 z-30 flex flex-col justify-between p-5 overflow-y-auto">
+      <div class="text-center space-y-1.5 pt-2">
+        <span class="inline-block text-[11px] font-bold uppercase tracking-wider bg-teal-100 text-teal-800 px-3 py-1 rounded-full">
+          FocusShield Buffer Pause
+        </span>
+        <h2 id="bufferTargetTitle" class="text-xl font-extrabold text-slate-900 pt-1">Pause before opening Instagram</h2>
+        <p id="bufferTargetSubtitle" class="text-xs text-slate-500">Opened 2 times today • Breaking the autopilot habit</p>
+      </div>
+
+      <!-- SIDE-BY-SIDE: BUFFER CLOCK + NEXT-TO-CLOCK DONATE SIGN -->
+      <div class="space-y-3 my-4">
+        <div class="grid grid-cols-12 gap-3 items-stretch">
+          <!-- Left: Buffer Countdown Clock -->
+          <div class="col-span-5 bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col items-center justify-center text-center">
+            <div id="bufferClockCircle" class="w-16 h-16 rounded-full bg-teal-50 border-2 border-teal-500 flex items-center justify-center pulse-ring mb-2">
+              <span id="bufferClockText" class="text-2xl font-extrabold text-teal-700">12s</span>
+            </div>
+            <p class="text-xs font-bold text-slate-800">Buffer Clock</p>
+            <p id="bufferStateHint" class="text-[10px] text-slate-500">Take a deep breath</p>
+          </div>
+
+          <!-- Right: Next-to-Clock "Donate if Satisfied" Sign -->
+          <div id="nextToClockDonateCard" class="col-span-7 bg-rose-50 hover:bg-rose-100/80 border border-rose-200 rounded-2xl p-3.5 flex flex-col justify-between cursor-pointer transition shadow-sm">
+            <div class="space-y-1">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-extrabold text-rose-800 flex items-center gap-1">
+                  <span>❤️</span> Free for Everyone
+                </span>
+                <span class="text-[10px] font-semibold bg-white text-rose-700 px-2 py-0.5 rounded-full border border-rose-200">
+                  Google Play
+                </span>
+              </div>
+              <p class="text-[11px] text-rose-900 leading-snug pt-0.5">
+                Satisfied with the time &amp; money FocusShield saves you? Donate in <strong>₹ INR, $ USD, or any currency</strong> so we can help more people &amp; grow!
+              </p>
+            </div>
+            <div class="pt-2 flex items-center justify-between border-t border-rose-200/60 mt-2">
+              <span class="text-[11px] font-extrabold text-rose-700">Tap to Donate (₹ / $ / €) →</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hard Lock Notice if Trading Kill Switch is Active -->
+        <div id="bufferHardLockBox" class="hidden bg-rose-900 text-white p-4 rounded-2xl text-xs space-y-1">
+          <p class="font-bold text-sm">🔒 Trading Kill Switch is Active (18h Lockout)</p>
+          <p class="text-rose-100">You locked all trading apps for the day to prevent emotional revenge trading. Step away from the charts and protect your capital!</p>
+        </div>
+
+        <!-- Pre-Trade Checklist (Shown when opening a Trading App) -->
+        <div id="bufferTraderChecklistBox" class="hidden bg-white p-3.5 rounded-2xl border border-slate-200 space-y-2">
+          <p class="text-xs font-bold text-slate-900">📉 Mandatory Pre-Trade Risk Checklist:</p>
+          <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer">
+            <input id="chkTradePlan" type="checkbox" class="w-4 h-4 accent-teal-600 rounded" />
+            <span>This trade matches my written strategy &amp; setup</span>
+          </label>
+          <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer">
+            <input id="chkTradeStopLoss" type="checkbox" class="w-4 h-4 accent-teal-600 rounded" />
+            <span>My exact stop-loss &amp; position size are set</span>
+          </label>
+          <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer">
+            <input id="chkTradeNoRevenge" type="checkbox" class="w-4 h-4 accent-teal-600 rounded" />
+            <span>I am NOT revenge trading after a loss</span>
+          </label>
+        </div>
+
+        <!-- Micro-Session Time Selector -->
+        <div id="bufferDurationBox" class="bg-white p-3.5 rounded-2xl border border-slate-200 space-y-2 text-center">
+          <p class="text-xs font-semibold text-slate-700">If you still need to use this app, pick a timer:</p>
+          <div class="grid grid-cols-4 gap-2" id="sessionMinutesGroup">
+            <button type="button" data-mins="2" class="session-min-btn py-1.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700">2 min</button>
+            <button type="button" data-mins="5" class="session-min-btn py-1.5 rounded-xl border border-teal-600 bg-teal-50 text-xs font-bold text-teal-800">5 min</button>
+            <button type="button" data-mins="10" class="session-min-btn py-1.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700">10 min</button>
+            <button type="button" data-mins="15" class="session-min-btn py-1.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700">15 min</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Decision Buttons -->
+      <div class="space-y-2.5 pb-1">
+        <button id="bufferStayFocusedBtn" type="button" class="w-full py-3.5 rounded-2xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm shadow-md transition">
+          ✅ Close App &amp; Protect My Routine
+        </button>
+        <button id="bufferProceedUnlockBtn" type="button" disabled class="w-full py-3 rounded-2xl border border-slate-300 bg-slate-100 text-slate-400 font-semibold text-xs transition">
+          Wait 12s Buffer Clock to Unlock
+        </button>
+      </div>
+    </div>
+
+    <!-- ================================================================== -->
+    <!-- GOOGLE PLAY MULTI-CURRENCY DONATION MODAL (INR ₹, USD $, EUR €, £) -->
+    <!-- ================================================================== -->
+    <div id="donateModal" class="hidden absolute inset-0 bg-slate-900/60 backdrop-blur-xs z-40 flex items-end sm:items-center justify-center p-3">
+      <div class="bg-white w-full rounded-3xl p-5 shadow-2xl space-y-4 animate-fade-in">
+        <div class="flex items-start justify-between">
+          <div>
+            <span class="text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full">
+              Official Google Play Billing
+            </span>
+            <h3 class="text-lg font-extrabold text-slate-900 pt-1">Support FocusShield ❤️</h3>
+          </div>
+          <button id="closeDonateModalBtn" type="button" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-sm">✕</button>
+        </div>
+
+        <p class="text-xs text-slate-600 leading-relaxed">
+          FocusShield is <strong>100% free with zero ads and zero locked features</strong>. If this app saved your daily routine or stopped an impulsive trade, you can tip in any currency via Google Play!
+        </p>
+
+        <!-- Currency Picker -->
+        <div class="space-y-1.5">
+          <p class="text-xs font-bold text-slate-700">1. Select Your Currency:</p>
+          <div class="grid grid-cols-4 gap-1.5" id="currencyButtonsContainer"></div>
+        </div>
+
+        <!-- Amount Picker -->
+        <div class="space-y-1.5">
+          <p class="text-xs font-bold text-slate-700">2. Choose Support Tier:</p>
+          <div class="grid grid-cols-2 gap-2" id="amountButtonsContainer"></div>
+        </div>
+
+        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-[11px] text-slate-600">
+          🔒 <strong>Safe &amp; Official:</strong> Processed by Google Play (UPI, Cards &amp; International Billing). The developer receives a single consolidated monthly payout from Google.
+        </div>
+
+        <button id="confirmDonateCheckoutBtn" type="button" class="w-full py-3.5 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-sm shadow-md transition">
+          Donate ₹99 via Google Play
+        </button>
+      </div>
+    </div>
+
+    <!-- In-Page Toast Notification -->
+    <div id="toastBanner" class="hidden absolute top-16 left-4 right-4 bg-slate-900 text-white text-xs font-semibold px-4 py-3 rounded-2xl shadow-lg z-50 text-center"></div>
+
+  </div>
+
+  <script>
+    // --- Application State ---
+    const defaultApps = [
+      { id: "com.instagram.android", name: "Instagram", icon: "📸", category: "SOCIAL", locked: true, opensToday: 2, unlockedUntil: 0 },
+      { id: "com.google.android.youtube", name: "YouTube", icon: "▶️", category: "SOCIAL", locked: true, opensToday: 3, unlockedUntil: 0 },
+      { id: "com.facebook.katana", name: "Facebook", icon: "📘", category: "SOCIAL", locked: true, opensToday: 1, unlockedUntil: 0 },
+      { id: "com.snapchat.android", name: "Snapchat", icon: "👻", category: "SOCIAL", locked: false, opensToday: 0, unlockedUntil: 0 },
+      { id: "com.zerodha.kite3", name: "Zerodha Kite (F&O / Stocks)", icon: "📈", category: "TRADING", locked: true, opensToday: 3, unlockedUntil: 0 },
+      { id: "com.binance.dev", name: "Binance Futures & Spot", icon: "🪙", category: "TRADING", locked: true, opensToday: 4, unlockedUntil: 0 },
+      { id: "com.tradingview.tradingviewapp", name: "TradingView Charts", icon: "📊", category: "TRADING", locked: true, opensToday: 4, unlockedUntil: 0 },
+      { id: "com.nextbillion.groww", name: "Groww Stocks & F&O", icon: "💹", category: "TRADING", locked: false, opensToday: 1, unlockedUntil: 0 }
+    ];
+
+    const surgicalRules = [
+      { id: "ig_reels", title: "Block Instagram Reels Tab", subtitle: "Keeps Instagram DMs & Stories working normally", enabled: true },
+      { id: "ig_explore", title: "Block Instagram Explore Grid", subtitle: "Hides algorithmic recommendation feed", enabled: true },
+      { id: "yt_shorts", title: "Block YouTube Shorts Player", subtitle: "Keeps YouTube Search & study tutorials working", enabled: true },
+      { id: "fb_reels", title: "Block Facebook Reels", subtitle: "Blocks short-form video reels inside Facebook", enabled: true }
+    ];
+
+    const currencyTiers = {
+      "INR (₹)": [
+        { label: "☕ Chai Tip", amount: "₹49", sku: "support_tier_chai" },
+        { label: "🚀 Focus Boost", amount: "₹99", sku: "support_tier_coffee" },
+        { label: "🛡️ Routine Hero", amount: "₹199", sku: "support_tier_boost" },
+        { label: "💎 Champion", amount: "₹499", sku: "support_tier_champion" }
+      ],
+      "USD ($)": [
+        { label: "☕ Coffee Tip", amount: "$1.99", sku: "support_tier_chai" },
+        { label: "🚀 Focus Boost", amount: "$4.99", sku: "support_tier_coffee" },
+        { label: "🛡️ Routine Hero", amount: "$9.99", sku: "support_tier_boost" },
+        { label: "💎 Champion", amount: "$19.99", sku: "support_tier_champion" }
+      ],
+      "EUR (€)": [
+        { label: "☕ Coffee Tip", amount: "€1.99", sku: "support_tier_chai" },
+        { label: "🚀 Focus Boost", amount: "€4.99", sku: "support_tier_coffee" },
+        { label: "🛡️ Routine Hero", amount: "€9.99", sku: "support_tier_boost" },
+        { label: "💎 Champion", amount: "€19.99", sku: "support_tier_champion" }
+      ],
+      "GBP (£)": [
+        { label: "☕ Coffee Tip", amount: "£1.99", sku: "support_tier_chai" },
+        { label: "🚀 Focus Boost", amount: "£4.99", sku: "support_tier_coffee" },
+        { label: "🛡️ Routine Hero", amount: "£9.99", sku: "support_tier_boost" },
+        { label: "💎 Champion", amount: "£19.99", sku: "support_tier_champion" }
+      ]
+    };
+
+    let appsState = [...defaultApps];
+    let reelsSavedCount = 14;
+    let killSwitchActive = false;
+    let enforceTradingWindow = true;
+    let requirePreTradeChecklist = true;
+    let chartDailyCap = 5;
+
+    // Buffer modal state
+    let activeBufferApp = null;
+    let bufferTimerInterval = null;
+    let bufferSecondsRemaining = 12;
+    let selectedSessionMinutes = 5;
+
+    // Donation modal state
+    let selectedCurrency = "INR (₹)";
+    let selectedTierIndex = 1;
+
+    function showToast(msg) {
+      const el = document.getElementById("toastBanner");
+      el.textContent = msg;
+      el.classList.remove("hidden");
+      setTimeout(() => {
+        el.classList.add("hidden");
+      }, 3200);
+    }
+
+    // --- Render App Vault List ---
+    function renderAppVault() {
+      const query = (document.getElementById("appSearchInput").value || "").toLowerCase();
+      const container = document.getElementById("appVaultContainer");
+      container.innerHTML = "";
+
+      const categories = [
+        { key: "TRADING", title: "📉 Trading & Futures Vault (Overtrading Guard)" },
+        { key: "SOCIAL", title: "📱 Social Media & Video Vault" },
+        { key: "OTHER", title: "🧩 Other Installed Apps" }
+      ];
+
+      const lockedTotal = appsState.filter(a => a.locked).length;
+      document.getElementById("statLockedCount").textContent = String(lockedTotal);
+
+      categories.forEach(cat => {
+        const filtered = appsState.filter(a => a.category === cat.key && a.name.toLowerCase().includes(query));
+        if (filtered.length === 0) return;
+
+        const sec = document.createElement("div");
+        sec.className = "space-y-2";
+
+        const header = document.createElement("h3");
+        header.className = "text-xs font-bold uppercase tracking-wider text-slate-500 px-1";
+        header.textContent = cat.title;
+        sec.appendChild(header);
+
+        filtered.forEach(app => {
+          const isUnlockedNow = app.unlockedUntil > Date.now();
+          const remSecs = isUnlockedNow ? Math.ceil((app.unlockedUntil - Date.now()) / 1000) : 0;
+
+          const card = document.createElement("div");
+          card.className = "bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between gap-2";
+
+          const left = document.createElement("div");
+          left.className = "flex items-center gap-3 flex-1 cursor-pointer";
+          left.innerHTML = `
+            <div class="w-10 h-10 rounded-2xl bg-slate-100 flex items-center justify-center text-lg shrink-0">${app.icon}</div>
+            <div>
+              <p class="text-sm font-bold text-slate-900 leading-snug">${app.name}</p>
+              <p class="text-[11px] text-slate-500">Opened today: ${app.opensToday}x ${
+                isUnlockedNow
+                  ? `<span class="text-amber-600 font-bold">• Unlocked (${Math.floor(remSecs / 60)}m ${remSecs % 60}s)</span>`
+                  : app.locked
+                  ? `<span class="text-teal-700 font-semibold">• Tap to test lock</span>`
+                  : `<span class="text-slate-400">• Unrestricted</span>`
+              }</p>
+            </div>
+          `;
+          left.addEventListener("click", () => {
+            openBufferScreenForApp(app.id);
+          });
+
+          const right = document.createElement("div");
+          right.className = "flex items-center gap-2";
+
+          const toggleBtn = document.createElement("button");
+          toggleBtn.type = "button";
+          toggleBtn.className = app.locked
+            ? "px-3 py-1.5 rounded-xl bg-teal-600 text-white text-xs font-bold transition"
+            : "px-3 py-1.5 rounded-xl bg-slate-200 text-slate-700 text-xs font-semibold transition";
+          toggleBtn.textContent = app.locked ? "Locked" : "Unlocked";
+          toggleBtn.addEventListener("click", () => {
+            app.locked = !app.locked;
+            if (app.locked) app.unlockedUntil = 0;
+            renderAppVault();
+            showToast(`${app.name} is now ${app.locked ? "Locked by default" : "Unrestricted"}`);
+          });
+
+          right.appendChild(toggleBtn);
+          card.appendChild(left);
+          card.appendChild(right);
+          sec.appendChild(card);
+        });
+
+        container.appendChild(sec);
+      });
+    }
+
+    // --- Render Surgical Reels & Shorts Toggles ---
+    function renderSurgicalTab() {
+      const list = document.getElementById("surgicalTogglesList");
+      list.innerHTML = "";
+      document.getElementById("surgicalCounterBadge").textContent = `${reelsSavedCount} Intercepted Today`;
+      document.getElementById("statReelsSaved").textContent = String(reelsSavedCount);
+
+      surgicalRules.forEach(rule => {
+        const row = document.createElement("div");
+        row.className = "bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between gap-3";
+        row.innerHTML = `
+          <div>
+            <p class="text-sm font-bold text-slate-900">${rule.title}</p>
+            <p class="text-xs text-slate-500">${rule.subtitle}</p>
+          </div>
+        `;
+        const chk = document.createElement("input");
+        chk.type = "checkbox";
+        chk.checked = rule.enabled;
+        chk.className = "w-5 h-5 accent-teal-600 rounded cursor-pointer shrink-0";
+        chk.addEventListener("change", () => {
+          rule.enabled = chk.checked;
+          showToast(`${rule.title}: ${rule.enabled ? "Active" : "Paused"}`);
+        });
+        row.appendChild(chk);
+        list.appendChild(row);
+      });
+    }
+
+    // --- Open Buffer Clock & Next-to-Clock Donate Screen ---
+    function openBufferScreenForApp(appId) {
+      const app = appsState.find(a => a.id === appId) || appsState[0];
+      activeBufferApp = app;
+
+      if (bufferTimerInterval) clearInterval(bufferTimerInterval);
+
+      const isTrading = app.category === "TRADING";
+      const hardLockedByKillSwitch = isTrading && killSwitchActive;
+      const hardLockedByCap = isTrading && app.opensToday >= chartDailyCap;
+      const isHardLocked = hardLockedByKillSwitch || hardLockedByCap;
+
+      // Progressive buffer clock: 10s base + 2s per open today
+      bufferSecondsRemaining = Math.min(30, 10 + app.opensToday * 2);
+
+      document.getElementById("bufferTargetTitle").textContent = isHardLocked
+        ? `${app.name} is Hard-Locked`
+        : `Pause before opening ${app.name}`;
+      document.getElementById("bufferTargetSubtitle").textContent =
+        `Opened ${app.opensToday} times today • Progressive Buffer Clock`;
+
+      // Reset pre-trade checkboxes
+      document.getElementById("chkTradePlan").checked = false;
+      document.getElementById("chkTradeStopLoss").checked = false;
+      document.getElementById("chkTradeNoRevenge").checked = false;
+
+      const hardLockBox = document.getElementById("bufferHardLockBox");
+      const checklistBox = document.getElementById("bufferTraderChecklistBox");
+      const durationBox = document.getElementById("bufferDurationBox");
+      const proceedBtn = document.getElementById("bufferProceedUnlockBtn");
+
+      if (isHardLocked) {
+        hardLockBox.classList.remove("hidden");
+        checklistBox.classList.add("hidden");
+        durationBox.classList.add("hidden");
+        proceedBtn.classList.add("hidden");
+        document.getElementById("bufferClockText").textContent = "LOCKED";
+        document.getElementById("bufferStateHint").textContent = hardLockedByKillSwitch
+          ? "18h Kill Switch Active"
+          : `Daily cap (${chartDailyCap}/${chartDailyCap}) reached`;
+      } else {
+        hardLockBox.classList.add("hidden");
+        durationBox.classList.remove("hidden");
+        proceedBtn.classList.remove("hidden");
+        if (isTrading && requirePreTradeChecklist) {
+          checklistBox.classList.remove("hidden");
+        } else {
+          checklistBox.classList.add("hidden");
+        }
+
+        updateBufferClockUI();
+        bufferTimerInterval = setInterval(() => {
+          if (bufferSecondsRemaining > 0) {
+            bufferSecondsRemaining -= 1;
+            updateBufferClockUI();
+          } else {
+            clearInterval(bufferTimerInterval);
+            updateBufferClockUI();
+          }
+        }, 1000);
+      }
+
+      document.getElementById("bufferOverlayModal").classList.remove("hidden");
+    }
+
+    function updateBufferClockUI() {
+      const clockText = document.getElementById("bufferClockText");
+      const hintText = document.getElementById("bufferStateHint");
+      const proceedBtn = document.getElementById("bufferProceedUnlockBtn");
+
+      if (!activeBufferApp) return;
+      const isTrading = activeBufferApp.category === "TRADING";
+      const checklistOk =
+        !isTrading ||
+        !requirePreTradeChecklist ||
+        (document.getElementById("chkTradePlan").checked &&
+          document.getElementById("chkTradeStopLoss").checked &&
+          document.getElementById("chkTradeNoRevenge").checked);
+
+      if (bufferSecondsRemaining > 0) {
+        clockText.textContent = `${bufferSecondsRemaining}s`;
+        hintText.textContent = "Buffer counting down...";
+        proceedBtn.disabled = true;
+        proceedBtn.className =
+          "w-full py-3 rounded-2xl border border-slate-300 bg-slate-100 text-slate-400 font-semibold text-xs transition";
+        proceedBtn.textContent = `Wait ${bufferSecondsRemaining}s Buffer Clock to Unlock`;
+      } else if (!checklistOk) {
+        clockText.textContent = "Ready";
+        hintText.textContent = "Check risk rules below";
+        proceedBtn.disabled = true;
+        proceedBtn.className =
+          "w-full py-3 rounded-2xl border border-amber-300 bg-amber-50 text-amber-800 font-semibold text-xs transition";
+        proceedBtn.textContent = "Complete Pre-Trade Risk Checklist Above to Unlock";
+      } else {
+        clockText.textContent = "Ready";
+        hintText.textContent = "You may proceed mindfully";
+        proceedBtn.disabled = false;
+        proceedBtn.className =
+          "w-full py-3 rounded-2xl border border-teal-600 bg-white hover:bg-teal-50 text-teal-800 font-bold text-xs transition cursor-pointer";
+        proceedBtn.textContent = `Unlock ${activeBufferApp.name} for ${selectedSessionMinutes} Minutes`;
+      }
+    }
+
+    // --- Render Multi-Currency Donation Modal ---
+    function renderDonateModal() {
+      const currContainer = document.getElementById("currencyButtonsContainer");
+      const amtContainer = document.getElementById("amountButtonsContainer");
+      currContainer.innerHTML = "";
+      amtContainer.innerHTML = "";
+
+      Object.keys(currencyTiers).forEach(currKey => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        const active = currKey === selectedCurrency;
+        btn.className = active
+          ? "py-2 px-2 rounded-xl bg-slate-900 text-white font-bold text-xs transition"
+          : "py-2 px-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition";
+        btn.textContent = currKey;
+        btn.addEventListener("click", () => {
+          selectedCurrency = currKey;
+          renderDonateModal();
+        });
+        currContainer.appendChild(btn);
+      });
+
+      const tiers = currencyTiers[selectedCurrency];
+      tiers.forEach((tier, idx) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        const active = idx === selectedTierIndex;
+        btn.className = active
+          ? "p-3 rounded-2xl border-2 border-rose-600 bg-rose-50 text-left transition"
+          : "p-3 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition";
+        btn.innerHTML = `
+          <p class="text-xs font-bold text-slate-800">${tier.label}</p>
+          <p class="text-base font-extrabold text-rose-600 pt-0.5">${tier.amount}</p>
+        `;
+        btn.addEventListener("click", () => {
+          selectedTierIndex = idx;
+          renderDonateModal();
+        });
+        amtContainer.appendChild(btn);
+      });
+
+      const chosen = tiers[selectedTierIndex];
+      document.getElementById("confirmDonateCheckoutBtn").textContent =
+        `Support with ${chosen.amount} via Google Play`;
+    }
+
+    // --- Wire Event Listeners on Load ---
+    window.addEventListener("DOMContentLoaded", () => {
+      renderAppVault();
+      renderSurgicalTab();
+      renderDonateModal();
+
+      // Navigation tabs
+      document.querySelectorAll(".nav-tab-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const target = btn.getAttribute("data-tab");
+          ["tabApps", "tabSurgical", "tabTrading", "tabShare"].forEach(id => {
+            document.getElementById(id).classList.toggle("hidden", id !== target);
+          });
+          document.querySelectorAll(".nav-tab-btn").forEach(b => {
+            const isSelected = b.getAttribute("data-tab") === target;
+            b.className = isSelected
+              ? "nav-tab-btn flex flex-col items-center py-1.5 rounded-xl bg-teal-50 text-teal-700 font-bold text-[11px]"
+              : "nav-tab-btn flex flex-col items-center py-1.5 rounded-xl text-slate-500 hover:bg-slate-100 font-medium text-[11px]";
+          });
+        });
+      });
+
+      // Header buttons
+      document.getElementById("headerDonateBtn").addEventListener("click", () => {
+        renderDonateModal();
+        document.getElementById("donateModal").classList.remove("hidden");
+      });
+
+      document.getElementById("headerApkHelpBtn").addEventListener("click", () => {
+        document.querySelector('[data-tab="tabShare"]').click();
+      });
+
+      document.getElementById("quickTestBufferBtn").addEventListener("click", () => {
+        openBufferScreenForApp("com.instagram.android");
+      });
+
+      // Search & Add Custom App
+      document.getElementById("appSearchInput").addEventListener("input", renderAppVault);
+
+      document.getElementById("addCustomAppBtn").addEventListener("click", () => {
+        const nameInput = document.getElementById("customAppNameInput");
+        const catSelect = document.getElementById("customAppCatSelect");
+        const val = nameInput.value.trim();
+        if (!val) {
+          showToast("Enter an app name first (e.g., PUBG, Angel One, Netflix)");
+          return;
+        }
+        appsState.unshift({
+          id: "custom." + val.toLowerCase().replace(/[^a-z0-9]/g, ""),
+          name: val,
+          icon: catSelect.value === "TRADING" ? "💹" : catSelect.value === "SOCIAL" ? "📱" : "🔒",
+          category: catSelect.value,
+          locked: true,
+          opensToday: 0,
+          unlockedUntil: 0
+        });
+        nameInput.value = "";
+        renderAppVault();
+        showToast(`Added & locked "${val}"`);
+      });
+
+      // Surgical simulator buttons
+      document.getElementById("simIgDmBtn").addEventListener("click", () => {
+        const out = document.getElementById("surgicalSimOutput");
+        out.className = "p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 font-semibold";
+        out.textContent = "✅ Instagram DMs Opened: FocusShield sees you are in Direct Messages (`direct_thread`), so it lets you chat uninterrupted!";
+      });
+
+      document.getElementById("simIgReelsBtn").addEventListener("click", () => {
+        const out = document.getElementById("surgicalSimOutput");
+        const igReelsRule = surgicalRules.find(r => r.id === "ig_reels");
+        if (igReelsRule && igReelsRule.enabled) {
+          reelsSavedCount += 1;
+          renderSurgicalTab();
+          out.className = "p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-900 font-bold";
+          out.textContent = "🛡️ SURGICAL BLOCK TRIGGERED! FocusShield detected `clips_viewer_view_pager` (Instagram Reels) and automatically pressed Back to return you to your DMs!";
+        } else {
+          out.className = "p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 font-medium";
+          out.textContent = "⚠️ Instagram Reels toggle is currently off. Turn it on above to block Reels.";
+        }
+      });
+
+      document.getElementById("simYtStudyBtn").addEventListener("click", () => {
+        const out = document.getElementById("surgicalSimOutput");
+        out.className = "p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 font-semibold";
+        out.textContent = "✅ YouTube Study Video Allowed: Search bar and long-form tutorials stay 100% open for your work and learning.";
+      });
+
+      document.getElementById("simYtShortsBtn").addEventListener("click", () => {
+        const out = document.getElementById("surgicalSimOutput");
+        const ytRule = surgicalRules.find(r => r.id === "yt_shorts");
+        if (ytRule && ytRule.enabled) {
+          reelsSavedCount += 1;
+          renderSurgicalTab();
+          out.className = "p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-900 font-bold";
+          out.textContent = "🛡️ SURGICAL BLOCK TRIGGERED! FocusShield detected `reel_player_page_container` (YouTube Shorts) and kicked you out of the Shorts loop immediately!";
+        } else {
+          out.className = "p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 font-medium";
+          out.textContent = "⚠️ YouTube Shorts toggle is currently off. Turn it on above to block Shorts.";
+        }
+      });
+
+      // Trading Kill Switch tab controls
+      document.getElementById("activateKillSwitchBtn").addEventListener("click", () => {
+        killSwitchActive = true;
+        document.getElementById("killSwitchCard").className =
+          "bg-rose-950 text-white border-2 border-rose-600 p-4 rounded-2xl shadow-md space-y-3";
+        document.getElementById("killSwitchStatusPill").textContent = "🔒 KILL SWITCH ACTIVE (18H LOCK)";
+        document.getElementById("activateKillSwitchBtn").textContent = "All Broker & Futures Apps Locked for 18h";
+        document.getElementById("resetKillSwitchDemoBtn").classList.remove("hidden");
+        showToast("Trading Kill Switch Activated! Zerodha, Binance & TradingView are now locked for 18 hours.");
+      });
+
+      document.getElementById("resetKillSwitchDemoBtn").addEventListener("click", () => {
+        killSwitchActive = false;
+        document.getElementById("killSwitchCard").className =
+          "bg-white border-2 border-rose-200 p-4 rounded-2xl shadow-sm space-y-3";
+        document.getElementById("killSwitchStatusPill").textContent = "Revenge-Trade Protection";
+        document.getElementById("activateKillSwitchBtn").textContent = "🔒 Activate 18-Hour Trading Kill Switch";
+        document.getElementById("resetKillSwitchDemoBtn").classList.add("hidden");
+        showToast("Demo Kill Switch reset.");
+      });
+
+      document.getElementById("toggleTradingWindow").addEventListener("change", e => {
+        enforceTradingWindow = e.target.checked;
+      });
+
+      document.getElementById("togglePreTradeChecklist").addEventListener("change", e => {
+        requirePreTradeChecklist = e.target.checked;
+      });
+
+      document.getElementById("chartCapSlider").addEventListener("input", e => {
+        chartDailyCap = parseInt(e.target.value, 10);
+        document.getElementById("chartCapValueLabel").textContent = `${chartDailyCap} opens / day`;
+      });
+
+      document.getElementById("testTraderBufferBtn").addEventListener("click", () => {
+        openBufferScreenForApp("com.zerodha.kite3");
+      });
+
+      // Buffer overlay controls
+      ["chkTradePlan", "chkTradeStopLoss", "chkTradeNoRevenge"].forEach(id => {
+        document.getElementById(id).addEventListener("change", updateBufferClockUI);
+      });
+
+      document.querySelectorAll(".session-min-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          selectedSessionMinutes = parseInt(btn.getAttribute("data-mins"), 10);
+          document.querySelectorAll(".session-min-btn").forEach(b => {
+            const active = parseInt(b.getAttribute("data-mins"), 10) === selectedSessionMinutes;
+            b.className = active
+              ? "session-min-btn py-1.5 rounded-xl border border-teal-600 bg-teal-50 text-xs font-bold text-teal-800"
+              : "session-min-btn py-1.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700";
+          });
+          updateBufferClockUI();
+        });
+      });
+
+      document.getElementById("bufferStayFocusedBtn").addEventListener("click", () => {
+        if (bufferTimerInterval) clearInterval(bufferTimerInterval);
+        document.getElementById("bufferOverlayModal").classList.add("hidden");
+        showToast("Great discipline! You closed the app and protected your routine.");
+      });
+
+      document.getElementById("bufferProceedUnlockBtn").addEventListener("click", () => {
+        if (!activeBufferApp) return;
+        if (bufferTimerInterval) clearInterval(bufferTimerInterval);
+        activeBufferApp.opensToday += 1;
+        activeBufferApp.unlockedUntil = Date.now() + selectedSessionMinutes * 60 * 1000;
+        document.getElementById("bufferOverlayModal").classList.add("hidden");
+        renderAppVault();
+        showToast(`Unlocked ${activeBufferApp.name} for ${selectedSessionMinutes} minutes.`);
+      });
+
+      document.getElementById("nextToClockDonateCard").addEventListener("click", () => {
+        renderDonateModal();
+        document.getElementById("donateModal").classList.remove("hidden");
+      });
+
+      // Donate modal controls
+      document.getElementById("closeDonateModalBtn").addEventListener("click", () => {
+        document.getElementById("donateModal").classList.add("hidden");
+      });
+
+      document.getElementById("confirmDonateCheckoutBtn").addEventListener("click", () => {
+        const chosen = currencyTiers[selectedCurrency][selectedTierIndex];
+        document.getElementById("donateModal").classList.add("hidden");
+        document.getElementById("supporterBadge").classList.remove("hidden");
+        showToast(`Thank you! Google Play Billing processed ${chosen.amount} (${chosen.sku}). Supporter Badge unlocked!`);
+      });
+
+      // Copy share message
+      document.getElementById("copyShareMsgBtn").addEventListener("click", () => {
+        const shareText =
+          "Hey! Try out FocusShield — our new 100% free app blocker that blocks Instagram Reels & YouTube Shorts (while keeping DMs and study videos working) and includes a Trading Kill Switch!";
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(shareText);
+          } else {
+            const ta = document.createElement("textarea");
+            ta.value = shareText;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand("copy");
+            document.body.removeChild(ta);
+          }
+        } catch (err) {}
+        showToast("Copied invite message to clipboard! Ready to paste on WhatsApp.");
+      });
+    });
+  </script>
+</body>
+</html>
